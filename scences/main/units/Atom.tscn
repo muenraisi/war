@@ -1,0 +1,61 @@
+[gd_scene load_steps=14 format=3 uid="uid://cubu1sxdp3ai5"]
+
+[ext_resource type="Script" path="res://scences/main/units/Atom.gd" id="1_qe7mi"]
+[ext_resource type="Script" path="res://scences/main/units/Property.gd" id="2_itn1f"]
+[ext_resource type="Texture2D" uid="uid://csr4286kspoi8" path="res://arts/ring.svg" id="2_l1x7h"]
+[ext_resource type="Texture2D" uid="uid://c0rildu5pm8gu" path="res://arts/ui/barHorizontal_red.png" id="3_ebv40"]
+[ext_resource type="Script" path="res://scences/main/units/property/attack.gd" id="3_w8506"]
+[ext_resource type="Script" path="res://scences/main/units/property/status.gd" id="3_y5cme"]
+[ext_resource type="Texture2D" uid="uid://dg73c3h6nvn16" path="res://arts/ui/barHorizontal_green.png" id="4_og0h6"]
+[ext_resource type="PackedScene" uid="uid://c0xtlh35urp50" path="res://utils/state/StateMachine.tscn" id="5_vrixk"]
+[ext_resource type="Script" path="res://scences/main/units/state_machine/idle.gd" id="6_1lan2"]
+[ext_resource type="Script" path="res://scences/main/units/state_machine/move.gd" id="7_26gd1"]
+[ext_resource type="Script" path="res://scences/main/units/state_machine/stop.gd" id="7_a71qg"]
+[ext_resource type="Script" path="res://scences/main/units/state_machine/attack.gd" id="8_hrj7b"]
+
+[sub_resource type="CircleShape2D" id="1"]
+radius = 90.0
+
+[node name="Atom" type="CharacterBody2D" groups=["atom_group"]]
+scale = Vector2(0.5, 0.5)
+input_pickable = true
+script = ExtResource("1_qe7mi")
+
+[node name="Property" type="Node" parent="."]
+script = ExtResource("2_itn1f")
+
+[node name="status" type="Node" parent="Property"]
+script = ExtResource("3_y5cme")
+
+[node name="attack" type="Node" parent="Property"]
+script = ExtResource("3_w8506")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." groups=["all_atoms"]]
+shape = SubResource("1")
+
+[node name="Piece" type="Sprite2D" parent="."]
+texture = ExtResource("2_l1x7h")
+
+[node name="HealthBar" type="TextureProgressBar" parent="."]
+offset_left = -100.0
+offset_top = -136.0
+offset_right = 100.0
+offset_bottom = -110.0
+value = 100.0
+texture_under = ExtResource("3_ebv40")
+texture_progress = ExtResource("4_og0h6")
+
+[node name="StateMachine" parent="." instance=ExtResource("5_vrixk")]
+start_state = NodePath("idle")
+
+[node name="idle" type="Node" parent="StateMachine"]
+script = ExtResource("6_1lan2")
+
+[node name="stop" type="Node" parent="StateMachine"]
+script = ExtResource("7_a71qg")
+
+[node name="move" type="Node" parent="StateMachine"]
+script = ExtResource("7_26gd1")
+
+[node name="attack" type="Node" parent="StateMachine"]
+script = ExtResource("8_hrj7b")

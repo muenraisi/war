@@ -1,0 +1,114 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://interface/default.theme" type="Theme" id=1]
+[ext_resource path="res://interface/items/ItemButton.gd" type="Script" id=2]
+[ext_resource path="res://interface/theme/icons/purse.png" type="Texture2D" id=3]
+[ext_resource path="res://interface/theme/icons/coins.png" type="Texture2D" id=4]
+
+[node name="ItemButton" type="Button" index="0"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_right = 300.0
+offset_bottom = 60.0
+minimum_size = Vector2( 300, 60 )
+pivot_offset = Vector2( 0, 0 )
+clip_contents = false
+focus_mode = 2
+mouse_filter = 0
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme = ExtResource( 1 )
+toggle_mode = false
+focus_mode = 2
+shortcut = null
+group = null
+flat = false
+align = 1
+script = ExtResource( 2 )
+_sections_unfolded = [ "Focus", "Rect", "Size Flags", "Theme" ]
+
+[node name="Name" type="Label" parent="." index="0"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 54.0
+offset_right = 254.0
+minimum_size = Vector2( 200, 0 )
+pivot_offset = Vector2( 0, 0 )
+clip_contents = false
+mouse_filter = 2
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 4
+text = "Item Name"
+valign = 1
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+_sections_unfolded = [ "Rect" ]
+
+[node name="Icon" type="TextureRect" parent="." index="1"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_right = 70.0
+pivot_offset = Vector2( 0, 0 )
+clip_contents = false
+mouse_filter = 1
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+texture = ExtResource( 3 )
+stretch_mode = 4
+
+[node name="coins" type="TextureRect" parent="." index="2"]
+
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -41.0
+offset_top = -18.0
+offset_right = -9.0
+offset_bottom = 14.0
+pivot_offset = Vector2( 0, 0 )
+clip_contents = false
+mouse_filter = 1
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+texture = ExtResource( 4 )
+stretch_mode = 0
+
+[node name="Price" type="Label" parent="." index="3"]
+
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -127.0
+offset_right = -47.0
+minimum_size = Vector2( 80, 0 )
+pivot_offset = Vector2( 0, 0 )
+clip_contents = false
+mouse_filter = 2
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 4
+text = "20"
+align = 2
+valign = 1
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+_sections_unfolded = [ "Rect" ]
+
+
