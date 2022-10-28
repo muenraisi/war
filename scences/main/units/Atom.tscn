@@ -59,3 +59,5 @@ script = ExtResource("7_26gd1")
 
 [node name="attack" type="Node" parent="StateMachine"]
 script = ExtResource("8_hrj7b")
+
+[connection signal="attack_finished" from="." to="StateMachine/attack" method="_on_atom_attack_finished"]

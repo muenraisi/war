@@ -38,21 +38,24 @@ func get_enemies_within_range(r, type: String ="manhattan"):
 #	return null
 
 
-func do_attack():
-	Common.print_with_time("do an attack")
-#	var timer:SceneTreeTimer = get_tree().create_timer(owner.property.attack.time)
+func do_attack(aim):
+	if is_attacking:
+		return
 	is_attacking=true
-	owner.attack()
+	Common.print_with_time("do an attack")
+	owner.turn(aim.position)
+#	var timer:SceneTreeTimer = get_tree().create_timer(owner.property.attack.time)
+	owner.attack(aim)
 #	owner.get_node("Body/Weapon").attack()
 #	await owner.get_node("Body/Weapon").attack.finished
 #	Common.print_with_time("finish_attack")
 #	await timer.timeout
-	is_attacking = false
+
 
 
 
 func physics_process(_delta) -> void:
-	if not owner.property.attack.enable:
+	if not owner.property.attack.get_final_var("enable"):
 #		print(owner," can't attack")
 		state_machine.transit_to("idle")
 		return
@@ -69,15 +72,15 @@ func physics_process(_delta) -> void:
 #			for d in owner.get_property_list():
 #				print("> " + d["name"])
 			if owner.is_in_cell_center():
-				if owner.is_in_range(target.cell, owner.property.attack.max_range): #TODO: a bug
-					do_attack()
+				if owner.is_in_range(target.cell, owner.property.attack.get_final_var("range")): #TODO: a bug
+					do_attack(target)
 					return 
 	else:
-		var enemies = get_enemies_within_range(owner.property.attack.max_range)
+		var enemies = get_enemies_within_range(owner.property.attack.get_final_var("range"))
 		if enemies:
 			if owner.is_in_cell_center():
-				owner.turn(enemies[0].position) # set the first enemy as default
-				do_attack()
+				# TODO: enemy select system
+				do_attack(enemies[0])# set the first enemy as default
 				return
 		else:
 			if owner.position.distance_to(owner.destination) < 5:
@@ -95,3 +98,7 @@ func receive_command(command_name: String, command_info: Dictionary = {}) -> voi
 			state_machine.transit_to("move", command_info)
 		"attack":
 			pass
+
+
+func _on_atom_attack_finished():
+	is_attacking = false # Replace with function body.

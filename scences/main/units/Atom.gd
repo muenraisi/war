@@ -14,6 +14,8 @@ extends CharacterBody2D
 @onready var battle_field:TileMap = owner.get_node("BattleField")
 @onready var property:Node = $Property
 
+signal attack_finished
+
 
 var _path = []
 
@@ -51,7 +53,8 @@ func _reset_pos():
 #	battle_field.insert_cell_to_atom(cell, self)
 
 func _process(_delta):
-	if property.status.life <= 0:
+#	print(property.status)
+	if property.status.get_final_var("life") == property.status.get_final_min("life"):
 		die()
 	queue_redraw()
 
@@ -65,18 +68,41 @@ func _draw():
 		draw_arc($Piece.position, 90, 0, 2*3.15, 90, Color.WHITE, 10, true)
 
 
-func attack():
+func attack(target):
 	var timer:SceneTreeTimer
-	timer = get_tree().create_timer(property.attack.foreswing)
+	timer = get_tree().create_timer(property.attack.get_final_var("foreswing"))
+#	print_debug("begin foreswing")
 	#foreswing animation
 	await timer.timeout
-	
-	timer = get_tree().create_timer(property.attack.backswing)
+	match property.attack.get_final_var("target_type"):
+		"unit":
+			var projectile = property.attack.get_final_var("projectile")
+#			print_debug(projectile)
+			if projectile == 0:
+#				print_debug(self, target)
+				target.under_attack(self, $Property.attack.get_final_var("damage"))
+		"cell":
+			pass
+		_:
+			printerr("unknow attack mode %s"%property.attack.get_final_var("mode"))
+	timer = get_tree().create_timer(property.attack.get_final_var("backswing"))
+#	print_debug("begin backswing")
 	#backswing animation
 	await timer.timeout
 	
-	timer = get_tree().create_timer(property.attack.idle)
-	pass
+	timer = get_tree().create_timer(property.attack.get_final_var("idle"))
+	await timer.timeout
+#	print_debug("attack fininshed")
+	emit_signal("attack_finished")
+
+
+func under_attack(_attacker, attack_damage):
+	print_debug("under_attack")
+	print_debug("before damage: ", property.status.get_var("life"), " ",  property.status.get_final_var("life"))
+	print(property.status.get_final_var("life") - attack_damage)
+	property.status.set_var("life", property.status.get_final_var("life") - attack_damage)
+	print_debug("after damage: ", property.status.get_var("life"), " ", property.status.get_final_var("life"))
+	$HealthBar.value = property.status.get_final_var("life")
 
 func die():
 	$StateMachine.transit_to("idle")
@@ -109,9 +135,6 @@ func move_destination():
 			_update_path()
 
 
-func under_attack(attacker):
-	$Propertity.status_life -= attacker.attack_power
-	$HealthBar.value = $Propertity.status_life
 
 func receive_command(command_name: String, command_info: Dictionary = {}) -> void:
 	$StateMachine.state.receive_command(command_name, command_info)
@@ -122,9 +145,9 @@ func receive_command(command_name: String, command_info: Dictionary = {}) -> voi
 #	position = battle_field.map_to_local(cell)
 #	battle_field.insert_cell_to_atom(cell, self)
 
-func is_in_range(target_cell, distance_range, type="manhattan") -> bool:
+func is_in_range(target_cell, r, type="manhattan") -> bool:
 #	print(Common.distance_grid_2d(cell, target_cell, type))
-	if Common.distance_grid_2d(cell, target_cell, type) <= distance_range:
+	if Common.distance_grid_2d(cell, target_cell, type) <= r:
 		return true
 	else:
 		return false

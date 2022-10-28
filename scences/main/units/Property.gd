@@ -2,8 +2,8 @@ extends Node
 
 
 @export var speed = 200
-@onready var status:Node = $status
-@onready var attack:Node = $attack
+@onready var status = $status.data
+@onready var attack = $attack.data
 
 
 var modifies = []
