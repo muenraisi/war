@@ -1,24 +1,29 @@
-[gd_scene load_steps=14 format=3 uid="uid://cubu1sxdp3ai5"]
+[gd_scene load_steps=21 format=3 uid="uid://cm2nhn428uqlv"]
 
 [ext_resource type="Script" path="res://scences/main/units/Atom.gd" id="1_qe7mi"]
 [ext_resource type="Script" path="res://scences/main/units/Property.gd" id="2_itn1f"]
 [ext_resource type="Texture2D" uid="uid://csr4286kspoi8" path="res://arts/ring.svg" id="2_l1x7h"]
-[ext_resource type="Texture2D" uid="uid://c0rildu5pm8gu" path="res://arts/ui/barHorizontal_red.png" id="3_ebv40"]
 [ext_resource type="Script" path="res://scences/main/units/property/attack.gd" id="3_w8506"]
 [ext_resource type="Script" path="res://scences/main/units/property/status.gd" id="3_y5cme"]
-[ext_resource type="Texture2D" uid="uid://dg73c3h6nvn16" path="res://arts/ui/barHorizontal_green.png" id="4_og0h6"]
+[ext_resource type="Script" path="res://scences/main/units/property/defend.gd" id="5_kmp6o"]
 [ext_resource type="PackedScene" uid="uid://c0xtlh35urp50" path="res://utils/state/StateMachine.tscn" id="5_vrixk"]
 [ext_resource type="Script" path="res://scences/main/units/state_machine/idle.gd" id="6_1lan2"]
 [ext_resource type="Script" path="res://scences/main/units/state_machine/move.gd" id="7_26gd1"]
 [ext_resource type="Script" path="res://scences/main/units/state_machine/stop.gd" id="7_a71qg"]
 [ext_resource type="Script" path="res://scences/main/units/state_machine/attack.gd" id="8_hrj7b"]
+[ext_resource type="Script" path="res://scences/main/units/state_machine/tactic.gd" id="11_dajcc"]
+[ext_resource type="Texture2D" uid="uid://dy8le0d41d5kh" path="res://arts/bar/100X8/outline.svg" id="12_2u5hh"]
+[ext_resource type="Texture2D" uid="uid://q2fph641am2s" path="res://arts/bar/vert/50_4.svg" id="13_gbn31"]
+[ext_resource type="Texture2D" uid="uid://86dwtglw7dlx" path="res://arts/bar/100X8/white.svg" id="13_hm0d2"]
+[ext_resource type="Script" path="res://scences/main/units/bar/MoraleBar.gd" id="14_s0psx"]
+[ext_resource type="Texture2D" uid="uid://bu88rvev08tjv" path="res://arts/bar/ring/ring_50_8.svg" id="15_h4xw3"]
+[ext_resource type="Script" path="res://scences/main/units/bar/TacticBar.gd" id="18_dbi40"]
+[ext_resource type="Script" path="res://scences/main/units/bar/LifeBar.gd" id="20_i0ht6"]
 
-[sub_resource type="CircleShape2D" id="1"]
-radius = 90.0
+[sub_resource type="CircleShape2D" id="CircleShape2D_qamg0"]
+radius = 49.0408
 
 [node name="Atom" type="CharacterBody2D" groups=["atom_group"]]
-scale = Vector2(0.5, 0.5)
-input_pickable = true
 script = ExtResource("1_qe7mi")
 
 [node name="Property" type="Node" parent="."]
@@ -30,20 +35,17 @@ script = ExtResource("3_y5cme")
 [node name="attack" type="Node" parent="Property"]
 script = ExtResource("3_w8506")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." groups=["all_atoms"]]
-shape = SubResource("1")
+[node name="tactic" type="Node" parent="Property"]
+script = ExtResource("3_w8506")
+
+[node name="defend" type="Node" parent="Property"]
+script = ExtResource("5_kmp6o")
+
+[node name="CollisionShape2d" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_qamg0")
 
 [node name="Piece" type="Sprite2D" parent="."]
 texture = ExtResource("2_l1x7h")
-
-[node name="HealthBar" type="TextureProgressBar" parent="."]
-offset_left = -100.0
-offset_top = -136.0
-offset_right = 100.0
-offset_bottom = -110.0
-value = 100.0
-texture_under = ExtResource("3_ebv40")
-texture_progress = ExtResource("4_og0h6")
 
 [node name="StateMachine" parent="." instance=ExtResource("5_vrixk")]
 start_state = NodePath("idle")
@@ -60,4 +62,61 @@ script = ExtResource("7_26gd1")
 [node name="attack" type="Node" parent="StateMachine"]
 script = ExtResource("8_hrj7b")
 
+[node name="tactic" type="Node" parent="StateMachine"]
+script = ExtResource("11_dajcc")
+
+[node name="Bar" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="MoraleBar" type="TextureProgressBar" parent="Bar"]
+offset_left = -38.0
+offset_top = -121.0
+offset_right = -34.0
+offset_bottom = -71.0
+value = 50.0
+fill_mode = 3
+texture_under = ExtResource("13_gbn31")
+texture_progress = ExtResource("13_gbn31")
+tint_progress = Color(1, 0, 0, 1)
+script = ExtResource("14_s0psx")
+
+[node name="TacticBar" type="TextureProgressBar" parent="Bar"]
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 10.375
+anchor_right = 0.5
+anchor_bottom = 10.375
+offset_left = -25.0
+offset_top = -121.0
+offset_right = 25.0
+offset_bottom = -71.0
+fill_mode = 4
+texture_under = ExtResource("15_h4xw3")
+texture_progress = ExtResource("15_h4xw3")
+tint_under = Color(0, 0, 0, 1)
+tint_progress = Color(0, 0, 1, 1)
+script = ExtResource("18_dbi40")
+metadata/_edit_use_anchors_ = true
+
+[node name="LifeBar" type="TextureProgressBar" parent="Bar"]
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 10.375
+anchor_right = 0.5
+anchor_bottom = 10.375
+offset_left = -50.0
+offset_top = -68.0
+offset_right = 50.0
+offset_bottom = -60.0
+value = 100.0
+texture_under = ExtResource("13_hm0d2")
+texture_over = ExtResource("12_2u5hh")
+texture_progress = ExtResource("13_hm0d2")
+tint_under = Color(0, 0, 0, 1)
+tint_progress = Color(0, 1, 0, 1)
+script = ExtResource("20_i0ht6")
+metadata/_edit_use_anchors_ = true
+
 [connection signal="attack_finished" from="." to="StateMachine/attack" method="_on_atom_attack_finished"]
+[connection signal="attack_finished" from="." to="StateMachine/tactic" method="_on_atom_attack_finished"]

@@ -1,5 +1,11 @@
-Node
-Node2D
-Sprite2D
 Label
+Control
+Node
+Marker2D
+CollisionShape2D
+CharacterBody2D
+Node2D
+TextureProgressBar
+ProgressBar
+Sprite2D
 TileMap

@@ -1,3 +1,1 @@
-res://scences/Main.tscn
-res://scences/main/units/Atom.tscn
-res://scences/main/units/Atom.gd
+res://scences/main/units/DamageNumber.tscn

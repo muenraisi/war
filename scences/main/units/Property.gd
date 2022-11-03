@@ -4,6 +4,8 @@ extends Node
 @export var speed = 200
 @onready var status = $status.data
 @onready var attack = $attack.data
+@onready var tactic = $tactic.data
+@onready var defend = $defend.data
 
 
 var modifies = []

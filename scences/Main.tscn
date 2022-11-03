@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://scences/main/MouseCamera.tscn" id="2"]
 [ext_resource type="Texture2D" uid="uid://8tqdhqbl2wuo" path="res://arts/tilemap/mapPack_tilesheet_2X.png" id="2_yvfxu"]
-[ext_resource type="PackedScene" uid="uid://cubu1sxdp3ai5" path="res://scences/main/units/Atom.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://cm2nhn428uqlv" path="res://scences/main/units/Atom.tscn" id="3"]
 [ext_resource type="Script" path="res://scences/main/BattleField.gd" id="3_t6ij3"]
 [ext_resource type="Script" path="res://scences/Main.gd" id="4"]
 [ext_resource type="PackedScene" uid="uid://2m63xq6fo68j" path="res://scences/main/HUD.tscn" id="6"]

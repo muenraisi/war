@@ -19,6 +19,8 @@ var animation = foreswing + backswing
 var time: float = animation + idle
 var speed: float = 100/ time	# 攻击速度
 
+@export var gain_tactic = 10
+
 @export var target_type: String = "unit" # or unit or cell
 @export_enum("manhattan","chebyshev","euclidean") var range_type 
 
@@ -34,6 +36,7 @@ func _init():
 	data.insert("projectile", projectile)
 	data.insert("target_type", target_type)
 	data.insert("range_type", range_type)
+	data.insert("gain_tactic", gain_tactic)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

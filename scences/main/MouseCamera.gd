@@ -19,9 +19,19 @@ func _input(event):
 			
 func _process(_delta):
 		if Input.is_action_just_pressed("middle_click"):
+			print_debug("just pressed middle")
 			fixed_toggle_point = get_viewport().get_mouse_position()
 		elif Input.is_action_pressed("middle_click"):
+			print_debug("pressed middle")
 			var ref = get_viewport().get_mouse_position()
 			position.x += (ref.x - fixed_toggle_point.x) / pan_scale
 			position.y += (ref.y - fixed_toggle_point.y)  / pan_scale
+		elif Input.is_action_pressed("right"):
+			position.x += 100. / pan_scale
+		elif Input.is_action_pressed("left"):
+			position.x -= 100. / pan_scale
+		elif Input.is_action_pressed("up"):
+			position.y -= 100. / pan_scale
+		elif Input.is_action_pressed("down"):
+			position.y += 100. / pan_scale
 

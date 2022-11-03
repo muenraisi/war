@@ -14,8 +14,13 @@ extends CharacterBody2D
 @onready var battle_field:TileMap = owner.get_node("BattleField")
 @onready var property:Node = $Property
 
+@onready var attack_affected = false
 signal attack_finished
+signal tactic_finished
 
+
+@onready var damage_number_template = preload("res://scences/main/units/DamageNumber.tscn")
+var damage_number_pool:Array[DamageNumber] = []
 
 var _path = []
 
@@ -54,8 +59,10 @@ func _reset_pos():
 
 func _process(_delta):
 #	print(property.status)
-	if property.status.get_final_var("life") == property.status.get_final_min("life"):
+	if property.status.is_min("life"):
 		die()
+	if property.status.is_min("morale"):
+		flee()
 	queue_redraw()
 
 func _physics_process(_delta):
@@ -65,49 +72,71 @@ func _physics_process(_delta):
 
 func _draw():
 	if controllable:
-		draw_arc($Piece.position, 90, 0, 2*3.15, 90, Color.WHITE, 10, true)
+		draw_arc($Piece.position, 60, 0, 2*3.15, 40, Color.RED, 2, false)
 
 
 func attack(target):
+	turn(target.position)
 	var timer:SceneTreeTimer
 	timer = get_tree().create_timer(property.attack.get_final_var("foreswing"))
 #	print_debug("begin foreswing")
 	#foreswing animation
 	await timer.timeout
+	
 	match property.attack.get_final_var("target_type"):
 		"unit":
 			var projectile = property.attack.get_final_var("projectile")
 #			print_debug(projectile)
 			if projectile == 0:
 #				print_debug(self, target)
-				target.under_attack(self, $Property.attack.get_final_var("damage"))
+				target.under_attack(self, property.attack.get_final_var("damage"))
 		"cell":
 			pass
 		_:
 			printerr("unknow attack mode %s"%property.attack.get_final_var("mode"))
+	attack_affected = true
+	property.status.increase_var("tactic", property.attack.get_final_var("gain_tactic"))
+	
 	timer = get_tree().create_timer(property.attack.get_final_var("backswing"))
 #	print_debug("begin backswing")
 	#backswing animation
 	await timer.timeout
 	
 	timer = get_tree().create_timer(property.attack.get_final_var("idle"))
+	#left lime without animation
 	await timer.timeout
 #	print_debug("attack fininshed")
 	emit_signal("attack_finished")
+	attack_affected = false
 
 
-func under_attack(_attacker, attack_damage):
-	print_debug("under_attack")
-	print_debug("before damage: ", property.status.get_var("life"), " ",  property.status.get_final_var("life"))
-	print(property.status.get_final_var("life") - attack_damage)
-	property.status.set_var("life", property.status.get_final_var("life") - attack_damage)
-	print_debug("after damage: ", property.status.get_var("life"), " ", property.status.get_final_var("life"))
-	$HealthBar.value = property.status.get_final_var("life")
+func tactic(_target):
+	property.status.as_min("tactic")
+	emit_signal("tactic_finished")
+	pass
+
+func under_attack(attacker, attack_damage):
+#	print_debug("under_attack")
+#	print_debug("before damage: ", property.status.get_var("life"), " ",  property.status.get_final_var("life"))
+#	print_debug(property.status.get_final_var("life") - attack_damage)
+	property.status.increase_var("life", -attack_damage)
+#	print_debug(attacker.get_instance_id ())
+	spawn_damage_number(attack_damage, attacker.get_instance_id())
+#	print_debug("lost life", attack_damage)
+#	print_debug("lost morale", property.defend.get_final_var("life_morale_ratio") * attack_damage * 100 / property.status.get_final_max("life"))
+	property.status.increase_var("morale", -property.defend.get_final_var("life_morale_ratio")  * attack_damage * 100 / property.status.get_final_max("life"))
+#	print_debug("after damage: ", property.status.get_var("life"), " ", property.status.get_final_var("life"))
+
 
 func die():
 	$StateMachine.transit_to("idle")
 	battle_field.cell_to_atom.erase(cell) # clear record in cell_to_atom 
+	queue_free()
 
+
+func flee():
+	$StateMachine.transit_to("idle")
+	battle_field.cell_to_atom.erase(cell) # clear record in cell_to_atom 
 	queue_free()
 	
 
@@ -126,11 +155,16 @@ func move(aim):
 
 
 func move_destination():
+	var dest_cell = battle_field.local_to_map(_next_cell_pos)
+	if dest_cell in battle_field.cell_to_atom.keys() and battle_field.cell_to_atom[dest_cell]!=self:
+		print_debug(dest_cell, battle_field.cell_to_atom.keys(), battle_field.cell_to_atom[dest_cell], self)
+		$StateMachine.transit_to("stop")
+		return
 	move(_next_cell_pos)
 	var distance_to_dst = position.distance_to(_next_cell_pos)
 	if distance_to_dst < battle_field.tile_set.tile_size.x /2.:
-		cell = battle_field.local_to_map(_next_cell_pos)
-		if distance_to_dst == 0:
+		cell = dest_cell
+		if distance_to_dst == 0 and !_path.is_empty():
 			_path.remove_at(0) 
 			_update_path()
 
@@ -157,3 +191,24 @@ func is_in_cell_center() -> bool:
 		return true
 	else:
 		return false
+
+
+func spawn_damage_number(value:float, id:int):
+	var damage_number = damage_number_template.instantiate()
+	var val = str(round(value))
+	add_child(damage_number, true)
+	damage_number.set_values_and_animate(val, Vector2(24, -24), 10, 10, id)
+
+#func get_damage_number():
+#	# get a damage number from the pool
+#	if damage_number_pool.size() > 0:
+#		return damage_number_pool.pop_front()
+#
+#	# create a new damage number if the pool is empty
+#	else:
+#		var new_damage_number = damage_number_template.instantiate()
+#		print_debug(new_damage_number)
+#		print_debug(typeof(new_damage_number))
+#		new_damage_number.tree_exiting.connect(
+#			func():damage_number_pool.append(new_damage_number))
+#		return new_damage_number

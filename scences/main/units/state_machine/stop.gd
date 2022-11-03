@@ -28,6 +28,7 @@ var idle_pos
 func enter(_msg := {}) -> void:
 #	print(owner._path)
 #	print(owner.destination)
+#	owner.set_path([])
 	if owner.position != owner.battle_field.map_to_local(owner.cell):
 		owner.set_path([ owner.battle_field.map_to_local(owner.cell)])
 #	print(owner._path)

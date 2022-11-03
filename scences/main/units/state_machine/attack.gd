@@ -39,11 +39,8 @@ func get_enemies_within_range(r, type: String ="manhattan"):
 
 
 func do_attack(aim):
-	if is_attacking:
-		return
 	is_attacking=true
 	Common.print_with_time("do an attack")
-	owner.turn(aim.position)
 #	var timer:SceneTreeTimer = get_tree().create_timer(owner.property.attack.time)
 	owner.attack(aim)
 #	owner.get_node("Body/Weapon").attack()
@@ -55,11 +52,13 @@ func do_attack(aim):
 
 
 func physics_process(_delta) -> void:
+	if is_attacking:
+		return
+	if owner.property.status.is_max("tactic"):
+		state_machine.transit_to("tactic", {"destination"=owner.destination,"target" = target})
 	if not owner.property.attack.get_final_var("enable"):
 #		print(owner," can't attack")
 		state_machine.transit_to("idle")
-		return
-	if is_attacking:
 		return
 	if target:
 #		print("target: ",target)
@@ -93,8 +92,12 @@ func physics_process(_delta) -> void:
 func receive_command(command_name: String, command_info: Dictionary = {}) -> void:
 	match command_name:
 		"stop":
+			if owner.attack_affected:
+				await owner.attaack_finished
 			state_machine.transit_to("stop")
 		"move":
+			if owner.attack_affected:
+				await owner.attaack_finished
 			state_machine.transit_to("move", command_info)
 		"attack":
 			pass
