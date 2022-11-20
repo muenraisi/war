@@ -1,11 +1,13 @@
 extends Node
 var data = BoardPropertyManager.new()
 
-@export var life_morale_ratio = 10. # if lost 10% life, lose 100% morale
+@export var armor = 0
+@export var reduction = 0
 
 
 func _init():
-	data.insert("life_morale_ratio", life_morale_ratio)
+	data.insert("armor", armor)
+	data.insert("reduction", reduction)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

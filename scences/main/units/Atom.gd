@@ -15,12 +15,16 @@ extends CharacterBody2D
 @onready var property:Node = $Property
 
 @onready var attack_affected = false
+
+var face_direction = "up" #"up", "down", "left","right"
+
+		
 signal attack_finished
 signal tactic_finished
 
 
-@onready var damage_number_template = preload("res://scences/main/units/DamageNumber.tscn")
-var damage_number_pool:Array[DamageNumber] = []
+@onready var spawn_number_template = preload("res://scences/main/units/SpawnNumber.tscn")
+var damage_number_pool:Array[SpawnNumber] = []
 
 var _path = []
 
@@ -42,7 +46,7 @@ func set_path(value):
 
 func _update_path():
 	if _path.size() == 0:
-		$StateMachine.transit_to("idle")
+		$StateMachine.transit_to("stop")
 		return
 	_next_cell_pos = _path[0]
 	turn(_next_cell_pos)
@@ -59,9 +63,9 @@ func _reset_pos():
 
 func _process(_delta):
 #	print(property.status)
-	if property.status.is_min("life"):
+	if property.status.is_low("life"):
 		die()
-	if property.status.is_min("morale"):
+	if property.status.is_low("morale"):
 		flee()
 	queue_redraw()
 
@@ -89,7 +93,10 @@ func attack(target):
 #			print_debug(projectile)
 			if projectile == 0:
 #				print_debug(self, target)
-				target.under_attack(self, property.attack.get_final_var("damage"))
+				var damage_computer =  BoardDamageComputer.new()
+				damage_computer.set_attack(property.attack.get_final_var("power"), property.status.get_final_var("population"))
+#				var attack_info = BoardAttackInfo.new(property.attack.get_final_var("power"))
+				target.under_attack(self, damage_computer)
 		"cell":
 			pass
 		_:
@@ -105,44 +112,81 @@ func attack(target):
 	timer = get_tree().create_timer(property.attack.get_final_var("idle"))
 	#left lime without animation
 	await timer.timeout
-#	print_debug("attack fininshed")
+	print_debug("attack fininshed")
 	emit_signal("attack_finished")
 	attack_affected = false
 
 
 func tactic(_target):
-	property.status.as_min("tactic")
+	property.status.as_low("tactic")
 	emit_signal("tactic_finished")
 	pass
 
-func under_attack(attacker, attack_damage):
+
+func under_attack(attacker, damage_computer:BoardDamageComputer):
 #	print_debug("under_attack")
 #	print_debug("before damage: ", property.status.get_var("life"), " ",  property.status.get_final_var("life"))
 #	print_debug(property.status.get_final_var("life") - attack_damage)
+	damage_computer.set_defend(property.defend.get_final_var("armor"))
+	var attack_damage = damage_computer.compute()
 	property.status.increase_var("life", -attack_damage)
 #	print_debug(attacker.get_instance_id ())
-	spawn_damage_number(attack_damage, attacker.get_instance_id())
+	spawn_number_animate(attack_damage, Vector2(24, -24),  "damage", attacker.get_instance_id())
 #	print_debug("lost life", attack_damage)
-#	print_debug("lost morale", property.defend.get_final_var("life_morale_ratio") * attack_damage * 100 / property.status.get_final_max("life"))
-	property.status.increase_var("morale", -property.defend.get_final_var("life_morale_ratio")  * attack_damage * 100 / property.status.get_final_max("life"))
+#	print_debug("life upp",property.status.get_final_upp("life"))
+	print_debug("lost morale: ", property.morale.get_final_var("damage_life_ratio")  * attack_damage * 100 / property.status.get_final_upp("life"))
+	property.status.increase_var("morale", -property.morale.get_final_var("damage_life_ratio")  * attack_damage * 100 / property.status.get_final_upp("life"))
+	spawn_number_animate(property.morale.get_final_var("damage_life_ratio")  * attack_damage * 100 / property.status.get_final_upp("life"), Vector2(-24, -24), "morale",  attacker.get_instance_id())
 #	print_debug("after damage: ", property.status.get_var("life"), " ", property.status.get_final_var("life"))
 
 
 func die():
+	print_debug("die")
 	$StateMachine.transit_to("idle")
 	battle_field.cell_to_atom.erase(cell) # clear record in cell_to_atom 
 	queue_free()
 
 
 func flee():
+	print_debug("flee")
 	$StateMachine.transit_to("idle")
 	battle_field.cell_to_atom.erase(cell) # clear record in cell_to_atom 
 	queue_free()
 	
 
 func turn(aim):
-	$Piece.rotation = -Vector2(aim.y-position.y, aim.x-position.x).angle()
+#	var rotation_angle = -Vector2(aim.y-position.y, aim.x-position.x).angle()
+#	print_debug(Vector2.LEFT.angle()," ", Vector2.DOWN.angle()," ",Vector2.RIGHT.angle()," ", Vector2.UP.angle())
+	var turn_direction = Vector2(aim.x-position.x, aim.y-position.y)
+	if turn_direction.x > 0 and turn_direction.x > abs(turn_direction.y):
+		face_direction = "right"
+	elif turn_direction.x < 0 and -turn_direction.x > abs(turn_direction.y):
+		face_direction = "left"
+	elif turn_direction.y > 0 and turn_direction.y > abs(turn_direction.x):
+		face_direction = "down"
+	elif turn_direction.y < 0 and -turn_direction.y > abs(turn_direction.x):
+		face_direction = "up"
+	else:
+		pass
+	print_debug("turn to ",  face_direction, " with ", turn_direction)
+#	$Piece.rotation = -Vector2(aim.y-position.y, aim.x-position.x).angle()
+	
 
+func stand():
+	print_debug("stand with ", face_direction)
+	if face_direction == "up":
+		$AnimatedSprite2d.animation = "stand_up"
+		$AnimatedSprite2d.flip_h = false
+	elif face_direction == "down":
+		$AnimatedSprite2d.animation = "stand_down"
+		$AnimatedSprite2d.flip_h = false
+	else:
+		$AnimatedSprite2d.animation = "stand_left"
+		if face_direction == "right":
+			$AnimatedSprite2d.flip_h = true
+		else:
+			$AnimatedSprite2d.flip_h = false
+			
 
 func move(aim):
 	var dt = get_physics_process_delta_time()
@@ -154,19 +198,24 @@ func move(aim):
 		set_position(aim)
 
 
-func move_destination():
+func move_destination() -> bool:
 	var dest_cell = battle_field.local_to_map(_next_cell_pos)
 	if dest_cell in battle_field.cell_to_atom.keys() and battle_field.cell_to_atom[dest_cell]!=self:
 		print_debug(dest_cell, battle_field.cell_to_atom.keys(), battle_field.cell_to_atom[dest_cell], self)
 		$StateMachine.transit_to("stop")
-		return
+		return false
 	move(_next_cell_pos)
 	var distance_to_dst = position.distance_to(_next_cell_pos)
 	if distance_to_dst < battle_field.tile_set.tile_size.x /2.:
 		cell = dest_cell
-		if distance_to_dst == 0 and !_path.is_empty():
-			_path.remove_at(0) 
-			_update_path()
+		if distance_to_dst == 0:
+			if _path.is_empty():
+				return true
+			else:
+				_path.remove_at(0) 
+				_update_path()
+	return false	
+
 
 
 
@@ -193,11 +242,10 @@ func is_in_cell_center() -> bool:
 		return false
 
 
-func spawn_damage_number(value:float, id:int):
-	var damage_number = damage_number_template.instantiate()
-	var val = str(round(value))
-	add_child(damage_number, true)
-	damage_number.set_values_and_animate(val, Vector2(24, -24), 10, 10, id)
+func spawn_number_animate(number:float, pos:Vector2, label_type:String, id:int):
+	var spawn_number = spawn_number_template.instantiate()
+	add_child(spawn_number, true)
+	spawn_number.set_number_and_animate(number, pos, 10, 10, id, label_type)
 
 #func get_damage_number():
 #	# get a damage number from the pool

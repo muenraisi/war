@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://scences/main/MouseCamera.tscn" id="2"]
 [ext_resource type="Texture2D" uid="uid://8tqdhqbl2wuo" path="res://arts/tilemap/mapPack_tilesheet_2X.png" id="2_yvfxu"]
-[ext_resource type="PackedScene" uid="uid://cm2nhn428uqlv" path="res://scences/main/units/Atom.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://dqlcmo8x6xr87" path="res://scences/main/units/Atom.tscn" id="3"]
 [ext_resource type="Script" path="res://scences/main/BattleField.gd" id="3_t6ij3"]
 [ext_resource type="Script" path="res://scences/Main.gd" id="4"]
 [ext_resource type="PackedScene" uid="uid://2m63xq6fo68j" path="res://scences/main/HUD.tscn" id="6"]
@@ -230,10 +230,10 @@ zoom = Vector2(0.5, 0.5)
 [node name="Units" type="Node" parent="."]
 
 [node name="Atom" parent="Units" instance=ExtResource("3")]
-position = Vector2(712, 456)
+position = Vector2(699, 713)
 
 [node name="Atom2" parent="Units" instance=ExtResource("3")]
-position = Vector2(310, 318)
+position = Vector2(450, 450)
 
 [node name="Atom3" parent="Units" instance=ExtResource("3")]
 position = Vector2(442, 193)

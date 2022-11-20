@@ -1,4 +1,7 @@
+res://arts/units/move
+res://
 res://scences/main/units/property
+res://scences/main/units/spawn_number
 res://scences/main/units/state_machine
 res://scences/main/units/bar
 D:/tools/blender/blender-3.2.0-windows-x64

@@ -4,7 +4,7 @@ var data = BoardPropertyManager.new()
 # property for attack
 
 @export var enable: bool = true
-@export var damage: float = 10 # 攻击力
+@export var power: float = 10 # 攻击力
 @export var r: int = 1
 
 
@@ -15,9 +15,12 @@ var data = BoardPropertyManager.new()
 
 @export var projectile: float = 0 # projectile speed 如果为零，则表示无弹道
 #@export var projectile_symbol
-var animation = foreswing + backswing
-var time: float = animation + idle
-var speed: float = 100/ time	# 攻击速度
+func animation():
+	return data.get_final_var("foreswing") + data.get_final_var("backswing")
+func time():
+	return data.get_final_var("animation") + data.get_final_var("idle")
+func speed():
+	return 100 / data.get_final_var("time")	# 攻击速度
 
 @export var gain_tactic = 10
 
@@ -27,21 +30,24 @@ var speed: float = 100/ time	# 攻击速度
 
 func _init():
 	data.insert("enable", enable)
-	data.insert("damage", damage)
+	data.insert("power", power)
 	data.insert("range", r)
-	data.insert("speed", speed)
 	data.insert("foreswing", foreswing)
 	data.insert("backswing", backswing)
 	data.insert("idle", idle)
 	data.insert("projectile", projectile)
+	data.insert("animation",animation)
+	data.insert("time", time)
+	data.insert("speed", speed)
 	data.insert("target_type", target_type)
 	data.insert("range_type", range_type)
 	data.insert("gain_tactic", gain_tactic)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-#	print_debug("animaiton time ", animation)
+	
 #	print_debug("total time ", idle)
+
 	pass # Replace with function body.
 
 

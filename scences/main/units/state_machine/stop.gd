@@ -1,6 +1,7 @@
 extends State
 
 var idle_pos
+var is_center = false
 # direct control by input event
 #func input(event: InputEvent) -> void:
 #	if owner.controllable:
@@ -31,12 +32,19 @@ func enter(_msg := {}) -> void:
 #	owner.set_path([])
 	if owner.position != owner.battle_field.map_to_local(owner.cell):
 		owner.set_path([ owner.battle_field.map_to_local(owner.cell)])
+		is_center = false
+	else:
+		owner.stand()
 #	print(owner._path)
 #	print(owner.destination)
 
 func physics_process(_delta):
+	if is_center:
+		return
 #	print(owner.position, " ", destination, " ", owner.position.distance_to(destination))
-	owner.move_destination()
+	is_center = owner.move_destination()
+	if is_center:
+		owner.stand()
 #	if owner.position.distance_to(idle_pos) < owner.ARRIVE_DISTANCE:
 #		owner.cell = owner.battle_field.local_to_map(idle_pos)
 

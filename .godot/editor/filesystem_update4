@@ -1,1 +1,3 @@
-res://scences/main/units/DamageNumber.tscn
+res://scences/Main.tscn
+res://scences/main/units/spawn_number/label_settings_damage.tres
+res://scences/main/units/Atom.tscn

@@ -43,6 +43,8 @@ func do_attack(aim):
 	Common.print_with_time("do an attack")
 #	var timer:SceneTreeTimer = get_tree().create_timer(owner.property.attack.time)
 	owner.attack(aim)
+	await owner.attack_finished
+	is_attacking=false
 #	owner.get_node("Body/Weapon").attack()
 #	await owner.get_node("Body/Weapon").attack.finished
 #	Common.print_with_time("finish_attack")
@@ -54,16 +56,16 @@ func do_attack(aim):
 func physics_process(_delta) -> void:
 	if is_attacking:
 		return
-	if owner.property.status.is_max("tactic"):
+	if owner.property.status.is_upp("tactic"):
 		state_machine.transit_to("tactic", {"destination"=owner.destination,"target" = target})
 	if not owner.property.attack.get_final_var("enable"):
 #		print(owner," can't attack")
-		state_machine.transit_to("idle")
+		state_machine.transit_to("stop")
 		return
 	if target:
 #		print("target: ",target)
 		if not is_instance_valid(target):
-			state_machine.transit_to("idle")
+			state_machine.transit_to("stop")
 		else:
 			owner.destination = target.position
 #			print(owner)
@@ -83,7 +85,7 @@ func physics_process(_delta) -> void:
 				return
 		else:
 			if owner.position.distance_to(owner.destination) < 5:
-				state_machine.transit_to("idle")
+				state_machine.transit_to("stop")
 				return
 	owner.move_destination()
 
@@ -102,6 +104,3 @@ func receive_command(command_name: String, command_info: Dictionary = {}) -> voi
 		"attack":
 			pass
 
-
-func _on_atom_attack_finished():
-	is_attacking = false # Replace with function body.

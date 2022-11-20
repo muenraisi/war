@@ -1,6 +1,8 @@
+AnimatedSprite2D
+AnimatableBody2D
+Node
 Label
 Control
-Node
 Marker2D
 CollisionShape2D
 CharacterBody2D

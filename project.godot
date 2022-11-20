@@ -15,9 +15,9 @@ _global_script_classes=[{
 "path": "res://utils/Common.gd"
 }, {
 "base": "Node2D",
-"class": &"DamageNumber",
+"class": &"SpawnNumber",
 "language": &"GDScript",
-"path": "res://scences/main/units/DamageNumber.gd"
+"path": "res://scences/main/units/SpawnNumber.gd"
 }, {
 "base": "Node",
 "class": &"State",
@@ -31,7 +31,7 @@ _global_script_classes=[{
 }]
 _global_script_class_icons={
 "Common": "",
-"DamageNumber": "",
+"SpawnNumber": "",
 "State": "",
 "StateMachine": ""
 }
